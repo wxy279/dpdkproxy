@@ -62,9 +62,18 @@ test
        echo "/home/tmp/dpdk-stable-18.11.7/dpdkproxy_if_mem_init.sh" >> /etc/rc.local
        chmod +x /etc/rc.local
       ```
-  * start dpdkproxy with default configuration
+  * get the dpdkproxy and install it 
+    ```
+    git clone https://github.com/wxy279/dpdkproxy.git
+    cd dpdkproxy
+    mkdir tmp
+    tar zxf dproxy.tar.gz -C tmp/
+    cd tmp
+    pkg-dproxy-install.sh
+    /usr/share/dproxy/script/dpdkproxy_start.sh
+    ```
 # performance
-
+following results were tested on huaweicloud ECS
 |                                  |      1 thread   |2 thread    |4 thread   |
 | :------------------------------: | :-------------: | :--------: | :--------:|
 | ECDHE-ECDSA-AES128-SHA256 CPS    | 2570            |  5511      |    10224  |
