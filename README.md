@@ -5,30 +5,63 @@ test
 
 # install
   * get the executable 
-  * get the dpdk source code and compile it and setup physic interface and memory for DPDK 
-      * git clone
-      * compilie
-          * export RTE_TARGET=x86_64-native-linuxapp-gcc
-          * make install T=x86_64-native-linuxapp-gcc
-      * setup hugepage
+      * git clone https://github.com/wxy279/dpdkproxy.git
+  * get the dpdk source code and compile it and setup physic interface and memory for DPDK (if you have igb_uio and rte_kni module installed and bind nic and set memory, ignor this step)
+      * step 1: get the dpdk 18.11 LTS version http://fast.dpdk.org/rel/dpdk-18.11.7.tar.xz and assume we get the tar package in director /home/tmp(this will used in step 6)
       ```
-      mkdir -p /mnt/huge
-      mount -t hugetlbfs nodev /mnt/huge
-      echo 768 > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
+       wget http://fast.dpdk.org/rel/dpdk-18.11.7.tar.xz
+       tar Jxf dpdk-18.11.7.tar.xz
+       cd dpdk-stable-18.11.7
       ```
-      * install kni and igb_uio kernel module
+      * step 2: compile dpdk (aim to get kni and igb_uio kernel module)
       ```
-      modprobe uio
-      insmod x86_64-native-linuxapp-gcc/kmod/igb_uio.ko
-      insmod x86_64-native-linuxapp-gcc/kmod/rte_kni.ko carrier=on
+       export RTE_TARGET=x86_64-native-linuxapp-gcc
+       make install -j 4 T=x86_64-native-linuxapp-gcc  (numactl-devel and libnuma-dev maybe needed)
       ```
-      * bind interface to DPDK
+      * step 3: setup hugepage
       ```
-      # ens35 for example
-      ifconfig ens35 down
-      python  usertools/dpdk-devbind.py --bind=igb_uio ens35
+       mkdir -p /mnt/huge
+       mount -t hugetlbfs nodev /mnt/huge
+       echo 768 > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
       ```
-  
+      * step 4: install kni and igb_uio kernel module
+      ```
+       modprobe uio
+       insmod x86_64-native-linuxapp-gcc/kmod/igb_uio.ko
+       insmod x86_64-native-linuxapp-gcc/kmod/rte_kni.ko carrier=on
+      ```
+      * step 5: bind interface to DPDK
+      ```
+       #ens35 for example
+       ifconfig ens35 down
+       python  usertools/dpdk-devbind.py --bind=igb_uio ens35
+      ```
+      * step 6: write a shell script (we named it with dpdkproxy_if_mem_init.sh) to make nic and memory setup every time system bootup (option if you don't want to run dpdkproxy automatically after system bootup) 
+      ```
+       mkdir -p /mnt/huge
+       mount -t hugetlbfs nodev /mnt/huge
+       echo 768 > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
+       # ens35 for example
+       ifconfig ens35 down
+       
+       echo "Unloading any existing DPDK UIO module"
+       /sbin/lsmod | grep -s igb_uio > /dev/null
+       if [ $? -eq 0 ] ; then
+          sudo /sbin/rmmod igb_uio
+       fi
+       rmmod igb_uio.ko
+       rmmod rte_kni.ko 
+       modprobe uio 
+       # assume we get the dpdk 
+       insmod /home/tmp/dpdk-stable-18.11.7/x86_64-native-linuxapp-gcc/kmod/igb_uio.ko
+       insmod /home/tmp/dpdk-stable-18.11.7/x86_64-native-linuxapp-gcc/kmod/rte_kni.ko carrier=on
+       python /home/tmp/dpdk-stable-18.11.7/usertools/dpdk-devbind.py --bind=igb_uio ens35
+      ```
+      * step 7: append following line to /etc/rc.local (needless if you don't execute step 6)
+      ```
+       echo "/home/tmp/dpdk-stable-18.11.7/dpdkproxy_if_mem_init.sh" >> /etc/rc.local
+       chmod +x /etc/rc.local
+      ```
   * start dpdkproxy with default configuration
 # performance
 
