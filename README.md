@@ -1,11 +1,15 @@
 # README
   This project aim at provide a high performance DPDK based proxy, and now support TLS proxy at present, later will support HTTP proxy and HTTPS proxy 
 # network topology
-test
+* client <----> DUT (dpdkproxy) <----> server 
+# packet follow
+  * request from client
 
-# install
-  * get the executable 
-      * git clone https://github.com/wxy279/dpdkproxy.git
+    CIP -------->  VIP && LIP ---------> RIP
+  * response from server
+
+    CIP <--------  VIP && LIP <--------- RIP
+# install dpdk and dpdkproxy
   * get the dpdk source code and compile it and setup physic interface and memory for DPDK (if you have igb_uio and rte_kni module installed and bind nic and set memory, ignor this step)
       * step 1: get the dpdk 18.11 LTS version http://fast.dpdk.org/rel/dpdk-18.11.7.tar.xz and assume we get the tar package in director /home/tmp(this will used in step 6)
       ```
