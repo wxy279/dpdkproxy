@@ -88,19 +88,26 @@
     dproxyctl tlsproxy add certkey tlss1 servername default certfile /usr/share/dproxy/cert/pki_selfsign_1024.crt keyfile /usr/share/dproxy/cert/pki_selfsign_1024.key  icafile /usr/share/dproxy/cert/default_midCA.crt
       ```
 # performance
-following results were tested on huaweicloud ECS
-|                                  |      1 thread   |2 thread    |4 thread   |
+   * Following results were tested on huaweicloud ECS
+   * TPS: Transactions Per Second, which include setup TCP connection first, then setup SSL connection, then HTTP request/response then finish the connection.
+   * SRE: TPS with SSL session reuse.
+    
+|               ciphersuit         |      1 thread   |2 thread    |4 thread   |
 | :------------------------------: | :-------------: | :--------: | :--------:|
-| ECDHE-ECDSA-AES128-SHA256 CPS    | 2570            |  5511      |    10224  |
+| ECDHE-ECDSA-AES128-SHA256 TPS    | 2570            |  5511      |    10224  |
+| ECDHE-ECDSA-AES128-SHA256 SRE    | 7290            |  14096     |    27295  |
 | ECDHE-ECDSA-AES128-SHA256 QPS    | 43788           |  92764     |    151630 |
-| ECDHE-RSA-AES128-SHA256 CPS(2k)  | 921             |  1881      |    3703   |
+| ECDHE-RSA-AES128-SHA256 TPS(2k)  | 921             |  1881      |    3703   |
+| ECDHE-RSA-AES128-SHA256 SRE(2k)  | 6959            |  13800     |    27044  |
 | ECDHE-RSA-AES128-SHA256 QPS(2k)  | 33911           |  69301     |  127809   |
-| ECDHE-RSA-AES128-SHA256 CPS(1k)  | 2201            |  4253      |    8344   |
+| ECDHE-RSA-AES128-SHA256 TPS(1k)  | 2201            |  4253      |    8344   |
 | ECDHE-RSA-AES128-SHA256 QPS(1k)  | 45802           |  87140     |   150164  |
-| AES128-SHA256(2k) CPS            | 1087            |  2199      |    4358   |
+| AES128-SHA256(2k) TPS            | 1087            |  2199      |    4358   |
+| AES128-SHA256(2k) SRE            | 7073            |  13862     |    27168  |
 | AES128-SHA256(2k) QPS            | 35722           |  73896     |   132915  |
-| AES128-SHA256(1k) CPS            | 3381            |  6689      |    12490  |
+| AES128-SHA256(1k) TPS            | 3381            |  6689      |    12490  |
 | AES128-SHA256(1k) QPS            | 49338           |  95448     |   154565  |
-| SM2-WITH-SMS4-SM3 CPS            | 444             |  930       |   1880    |
+| SM2-WITH-SMS4-SM3 TPS            | 444             |  930       |   1880    |
+| SM2-WITH-SMS4-SM3 SRE            | 4877            |  9659      |   14155   |
 | SM2-WITH-SMS4-SM3 QPS            | 15607           |  31520     |   50727   |
 
